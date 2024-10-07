@@ -22,7 +22,7 @@ export function Modal({
                {release_date}
             </p>
             <p>
-               <span className="fw-bold">Rating:</span> {vote_average}
+               <span className="fw-bold">Rating:</span> {vote_average.toFixed(1)}
             </p>
             <p>
                <span className="fw-bold">Resumen:</span> {overview}
