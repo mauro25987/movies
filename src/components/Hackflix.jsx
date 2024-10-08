@@ -75,6 +75,8 @@ export function Hackflix() {
 
    return (
       <Container className="bg-secondary-subtle">
+         <h1>Hackflix</h1>
+         <hr />
          <Row>
             <Col className="d-flex justify-content-center">
                <span className="my-auto fw-bold">Filtrar por rating</span>
