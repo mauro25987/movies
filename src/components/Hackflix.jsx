@@ -75,7 +75,7 @@ export function Hackflix() {
 
    return (
       <Container className="bg-secondary-subtle">
-         <h1>Hackflix V2</h1>
+         <h1>HackFlix V2</h1>
          <hr />
          <Row>
             <Col className="d-flex justify-content-center">
