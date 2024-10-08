@@ -6,7 +6,9 @@ import useInfiniteScroll from "react-infinite-scroll-hook";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-export function Hackflix({ token }) {
+export function Hackflix() {
+   const apiUrl = import.meta.env.VITE_API_URL;
+   const apiKey = import.meta.env.VITE_API_KEY;
    const [movies, setMovies] = useState([]);
    const [rating, setRating] = useState(0);
    const [showModal, setShowModal] = useState(false);
@@ -21,10 +23,10 @@ export function Hackflix({ token }) {
       setLoading(true);
       try {
          const res = await axios.get(
-            `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`,
+            `${apiUrl}?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`,
             {
                headers: {
-                  Authorization: `Bearer ${token}`,
+                  Authorization: `Bearer ${apiKey}`,
                   accept: "application/json",
                },
             }
