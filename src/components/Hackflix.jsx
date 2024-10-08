@@ -11,11 +11,16 @@ export function Hackflix({ token }) {
    const [rating, setRating] = useState(0);
    const [showModal, setShowModal] = useState(false);
    const [selMovie, setSelMovie] = useState(null);
-   const [page, setPage] = useState(1);
 
-   useEffect(() => {
-      axios
-         .get(
+   const [page, setPage] = useState(1);
+   const [loading, setLoading] = useState(false);
+   const [hasNextPage, setHasNextPage] = useState(false);
+   const [error, setError] = useState(null);
+
+   const fetchMovies = async () => {
+      setLoading(true);
+      try {
+         const res = await axios.get(
             `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`,
             {
                headers: {
@@ -23,20 +28,40 @@ export function Hackflix({ token }) {
                   accept: "application/json",
                },
             }
-         )
-         .then((response) => {
+         );
+         if (res.data.results.length === 0) {
+            setHasNextPage(false);
+         } else {
             setMovies(
-               response.data.results.filter(
+               [...movies, ...res.data.results].filter(
                   (e) => e.vote_average >= rating * 2 - 2
                )
             );
-         })
-         .catch((err) => {
-            console.log("Error recibido en la solicitud:", err);
-         });
+            setPage(page + 1);
+            setHasNextPage(true);
+         }
+      } catch (error) {
+         console.log("Error recibido en la solicitud:", error);
+         setError(error);
+      } finally {
+         setLoading(false);
+      }
+   };
+
+   const [sentryRef] = useInfiniteScroll({
+      loading,
+      hasNextPage,
+      onLoadMore: fetchMovies,
+      disabled: !!error,
+      rootMargin: "0px 0px 400px 0px",
+   });
+
+   useEffect(() => {
+      fetchMovies();
    }, [rating]);
 
    // modal, transition scale
+
    const ratingChanged = (newRating) => {
       setRating(newRating);
    };
@@ -45,8 +70,6 @@ export function Hackflix({ token }) {
       setSelMovie(movie);
       showModal ? setShowModal(false) : setShowModal(true);
    };
-
-   const handlePage = (page) => setPage(page + 1);
 
    return (
       <Container className="bg-secondary-subtle">
@@ -72,8 +95,8 @@ export function Hackflix({ token }) {
                   </span>
                </Col>
             ) : (
-               movies.map((movie) => (
-                  <Col className="col-3" key={movie.id}>
+               movies.map((movie, index) => (
+                  <Col className="col-3" key={index}>
                      <Image
                         src={`https://image.tmdb.org/t/p/w300_and_h450_bestv2/${movie.poster_path}`}
                         alt={movie.title}
@@ -85,6 +108,15 @@ export function Hackflix({ token }) {
                   </Col>
                ))
             )}
+            <Col className="d-flex justify-content-center">
+               {loading || hasNextPage ? (
+                  <span ref={sentryRef}>Loading.....</span>
+               ) : (
+                  <span className="my-auto h3 mt-4">
+                     Lo sentimos, no se encontraron películas con el scroll
+                  </span>
+               )}
+            </Col>
             {showModal && (
                <Modal
                   movie={selMovie}
